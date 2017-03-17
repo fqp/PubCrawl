@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+    
+    
+    
+      var map;
+      var placeService;
+      var directionsService = null;
+      var directionsDisplay = null;
+      var attractionMarkers = [];
+      var barMarkers = [];
+      var lastMarkerClicked = null;
+      
+      // General function for creating markers on the map
+      function createMarker(attr)
+      {
+        // Set a different icon for the bars
+        if (attr.type == "bar")
+          attr.icon = "pint-of-beer.png";
+        
+        attr.map = map;
+        var marker = new google.maps.Marker(attr);
+        
+        // If the marker is for a bar, add a click handler which invokes
+        // the directions service
+        if (attr.type == "bar") {
+          
+          barMarkers.push(marker);
+          
+          marker.addListener('click', function() {
+            // Create a directions request between this marker and
+            // the lastMarkerClicked
+            var directionsRequest = {
+              origin: { lat: lastMarkerClicked.position.lat(), lng: lastMarkerClicked.position.lng() },
+              destination: { lat: this.position.lat(), lng: this.position.lng() },
+              travelMode: "WALKING"
+            };
+            
+            // Make the direction request and handle the result
+            directionsService.route(directionsRequest, function(result, status) {
+              if (status == 'OK') {
+                directionsDisplay.setDirections(result);
+              }
+            });
+            
+          });
+          
+        } else {
+          
+          attractionMarkers.push(marker);
+        }
+        
+        return marker;
+      }
+      
+      function searchNearbyCallback(results, status)
+      {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+        
+          // Sort the results according to their rating
+          results.sort(function(a, b) {
+            if (a.rating > b.rating)
+              return 1;
+            else if (a.rating < b.rating)
+              return -1;
+            
+            return 0;
+          });
+          
+          // Remove the existing bar markers
+          for (var m = 0; m < barMarkers.length; m++) {
+            barMarkers[m].setMap(null);
+          }
+          barMarkers = [];
+          
+          // Iterate through the results and create markers for the first few
+          // results
+          for (var i = 0; i < results.length && i < 9; i++) {
+            
+            var place = results[i];
+            console.log(place);
+            
+            createMarker(place.name, place.geometry.location.lat(), place.geometry.location.lng());
+            
+            createMarker({
+              type: "bar",
+              title: place.name,
+              position: {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng()
+              }
+            });
+            
+          }
+        }
+      }
+      
+      
+      function initMap() {
+      
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: { lat: 51.4418203, lng: 5.4802202 },
+          zoom: 14
+        });
+        
+        // Initialize the Place service to use the map we just created
+        placeService = new google.maps.places.PlacesService(map);
+        
+        // Initialize the direction rendering to use the map we just created
+        directionsService = new google.maps.DirectionsService();
+        directionsDisplay = new google.maps.DirectionsRenderer();
+        directionsDisplay.setMap(map);
+        
+        var attractions = [
+          { type: "attraction", title: "DAF Museum (museum)", desc: "A lasting memory about entrepreneurship in the city of Eindhoven is the DAF Museum. Amongst others because it houses a forge.", position: { lat: 51.4372204, lng: 5.4882538}},
+          { type: "attraction", title: "Philips Museum (museum)", desc: "The old factory where Philips made his first incandescent lamp, has undergone extensive renovation and been extended to an interactive museum where heritage and innovation come together.", position: { lat: 51.4396382, lng: 5.4731565}},
+          { type: "attraction", title: "preHistorisch Dorp (museum)", desc: "A lost city comes to life again at the Eindhoven Museum. The heritage park explains the life in Eindhoven farms and houses in the pre-historic and Middle Ages.", position: { lat: 51.4243765, lng: 5.4718654}},
+          { type: "attraction", title: "PSV Museum (museum)", desc: "Entrance 17 of Philips Stadium will take you to the PSV Museum where you can relive the most important events in the 100 years' history of PSV. A must-see for every PSV supporter, in fact, for every football fan.", position: { lat: 51.4411839, lng: 5.4661848}},
+          { type: "attraction", title: "Van Abbemuseum (museum)", desc: "Van Abbemuseum was founded in 1936 and is one of the most prestigious museums for modern at with an international collection of more than 2,700 works of art, including works by Lissitzky, Picasso, Dumas, Dijkstra, Mondriaan and Picasso. The original Van Abbe building was renovated and extended in 2003. The new building is designed by Abel Cahen. The museum also holds a library and a nice museum café. Information on opening hours, admission and guided tours can be found on the Van Abbemuseum website.", position: { lat: 51.4345501, lng: 5.4797656}},
+          { type: "attraction", title: "Philips Stadion (sport)", desc: "The Philips Stadion is home to soccer club PSV. This beautiful and modern stadium is situated in the city centre of Eindhoven and has been there ever since the foundation of the Philips Sports foundation, back in 1913.", position: { lat: 51.4417374, lng: 5.4652538}},
+          { type: "attraction", title: "18 Septemberplein (architecture / art)", desc: "The intersection of Piazza, Vestdijk, Stationsplein and the Blob in the city centre of Eindhoven.", position: { lat: 51.4414205, lng: 5.4764374}},
+          { type: "attraction", title: "Evoluon (architecture / art)", desc: "Evoluon is an extraordinary building in Eindhoven in the shape of a flying saucer. It was built and decorated by Philips and opened to the public in 1966, in celebration of the company's 75th anniversary. Between 1966 and 1989 it was a science and technique museum. Today, the Evoluon is an iconic and hospitable surrounding where entrepreneurs meet and build at their successes.", position: { lat: 51.4426781, lng: 5.4439424}},
+          { type: "attraction", title: "Sint-Catharinakerk (architecture / art)", desc: "Catherine Church is a Roman Catholic church in the inner city of the Dutch city of Eindhoven, dedicated to St. Catherine of Alexandria . The church is located at the Catherine's Square, at the beginning of Stratumseind ​​and was built to replace the dilapidated medieval St. Catherine's Church.", position: { lat: 51.4369042, lng: 5.4770755}},
+          { type: "attraction", title: "Sint Joriskerk (architecture / art)", desc: "Designed by Hendrik Jacobus van Tulder, St. George Church is a neo-Gothic basilica with three naves that dates from 1885.", position: { lat: 51.4301569, lng: 5.4863972}},
+          { type: "attraction", title: "City Centre (market)", desc: "Every tuesday a very extensive market, starting at 09.00h til 14.00h in winter and til 15.30h in summer.", position: { lat: 51.439369, lng: 5.478523}},
+          { type: "attraction", title: "Catharina Market (market)", desc: "A market where you are going without the intention of buying anything, but you never go home empty-handed. Creative and not too polished, just like Eindhoven.", position: { lat: 51.4370677, lng: 5.4774096}},
+          { type: "attraction", title: "Biological Market Wilhelminaplein (market)", desc: "This durable weekly market on saturday offers a wide scale of regional and biological food like vegetables, cheese, meat and bread. From 10.00h til 16.00h.", position: { lat: 51.4379052, lng: 5.4689975}},
+          { type: "attraction", title: "Eindhoven Train Station (architecture / art)", desc: "The current station building was built in 1956 by design of architect Koen van der Gaast and resembles a Philips radio at that time. In the view of Van der Gaast a train station had to get a prominent role in the city compared to other transport systems. Not the human dimension was the starting point, but the urban space was the decisive factor in the measurements. Another striking aspect of his vision was that the station had to have absolutely no recreational function, it was only intended as a pedestrian space: the transition from one transport to another.", position: { lat: 51.4418203, lng: 5.4802202}}
+        ];
+        
+        var route1DirectionRequest = {
+          origin: new google.maps.LatLng(attractions[0].position.lat, attractions[0].position.lng),
+          destination: new google.maps.LatLng(attractions[4].position.lat, attractions[4].position.lng),
+          waypoints: [
+            {
+              location: { lat: attractions[1].position.lat, lng: attractions[1].position.lng },
+              stopover: true
+            },
+            {
+              location: { lat: attractions[1].position.lat, lng: attractions[1].position.lng },
+              stopover: true
+            },
+            {
+              location: { lat: attractions[1].position.lat, lng: attractions[1].position.lng },
+              stopover: true
+            }
+          ],
+          travelMode: "WALKING"
+        };
+        
+        // Place the attractions on the map
+        for (var i = 0; i < attractions.length; i++) {
+          
+          var marker = createMarker(attractions[i]);
+          
+          marker.addListener('click', function() {
+            lastMarkerClicked = this;
+            
+            var request = {
+              location: { lat: this.position.lat(), lng: this.position.lng() },
+              radius: 500,
+              openNow: true,
+              type: "bar"
+            };
+            
+            placeService.nearbySearch(request, searchNearbyCallback);
+        
+          });
+        }
+        
+        // As a test, set a route with waypoints
+        directionsService.route(route1DirectionRequest, function(result, status) {
+          if (status == 'OK') {
+            directionsDisplay.setDirections(result);
+          }
+        });
+        
+      }
+    </script>
+    
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCC9wT2sYcgceFWtUy2ioOieliQYmJaNC8" async defer></script> -->
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCC9wT2sYcgceFWtUy2ioOieliQYmJaNC8&libraries=places&callback=initMap" async defer></script>
+    
+  </body>
+</html>
