@@ -24,3 +24,5 @@ $app->get('/api/routes/{id}', 'RoutesController@show');
 
 $app->get('/api/attractions', 'AttractionsController@index');
 $app->get('/api/attractions/{id}', 'AttractionsController@show');
+$app->get('/api/types', 'AttractionsController@types');
+$app->get('/api/types/{type}', 'AttractionsController@searchbytype');

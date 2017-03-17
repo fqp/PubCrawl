@@ -15,13 +15,13 @@ class RoutesController extends Controller
     }
 
     public function index() {
-        // TODO fetch all routes
-        return null;
+        $results = app('db')->select("SELECT * FROM routes");
+        return response()->json($results);
     }
 
     public function show($id) {
-        // TODO fetch specific route
-        return $id;
+        $result = app('db')->select("SELECT * FROM routes WHERE id=" . $id);
+        return response()->json($result);
     }
 
 }
