@@ -14,3 +14,13 @@
 $app->get('/', function () use ($app) {
     return $app->version();
 });
+
+$app->get('/hello-world', function() use ($app) {
+	return 'Hello world';
+});
+
+$app->get('routes', 'RoutesController@index');
+$app->get('routes/{id}', 'RoutesController@show');
+
+$app->get('attractions', 'AttractionsController@index');
+$app->get('attractions/{id}', 'AttractionsController@show');
