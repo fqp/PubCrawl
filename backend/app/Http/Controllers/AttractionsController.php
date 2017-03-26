@@ -2,27 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attraction;
+
 class AttractionsController extends Controller
 {
     public function index() {
-        $results = app('db')->select("SELECT * FROM attractions");
-        return response()->json($results);
+        $attractions = Attraction::all();
+        return response()->json($attractions);
     }
 
     public function show($id) {
-        $result = app('db')->select("SELECT * FROM attractions WHERE id = " . $id);
-        return response()->json($result);
+        $attraction = Attraction::where('id', $id)->get();
+        return response()->json($attraction);
     }
 
-    public function types()
-    {
-        $results = app('db')->select("SELECT DISTINCT(type) FROM attractions");
-        return response()->json($results);
-    }
-
-    public function searchbytype($type)
-    {
-        $results = app('db')->select("SELECT * FROM attractions WHERE type LIKE '%" . $type . "%'");
-        return response()->json($results);
+    public function routes($id) {
+        $attraction = Attraction::find($id)->routes()->get();
+        return response()->json($attraction);
     }
 }

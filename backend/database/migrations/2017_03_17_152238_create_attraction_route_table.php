@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRoutesAttractionsTable extends Migration
+class CreateAttractionRouteTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateRoutesAttractionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('routes_attractions', function (Blueprint $table) {
-            $table->integer('route_id');
+        Schema::create('attraction_route', function (Blueprint $table) {
             $table->integer('attraction_id');
+            $table->integer('route_id');
         });
     }
 
@@ -26,6 +26,6 @@ class CreateRoutesAttractionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('routes_attractions');
+        Schema::dropIfExists('attraction_route');
     }
 }

@@ -6,7 +6,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-final class Attraction extends Model  
+final class Attraction extends Model
 {
-
+	public function routes() {
+		return $this->hasMany('App\Models\Route');
+	}
 }

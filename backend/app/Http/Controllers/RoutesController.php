@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Route;
+
 class RoutesController extends Controller
 {
     /**
@@ -15,13 +17,18 @@ class RoutesController extends Controller
     }
 
     public function index() {
-        $results = app('db')->select("SELECT * FROM routes");
-        return response()->json($results);
+        $routes = Route::all();
+        return response()->json($routes);
     }
 
     public function show($id) {
-        $result = app('db')->select("SELECT * FROM routes WHERE id=" . $id);
-        return response()->json($result);
+        $route = Route::find($id);
+        return response()->json($route);
+    }
+
+    public function attractions($id) {
+        $attractions = Route::find($id)->attractions()->get();
+        return response()->json($attractions);
     }
 
 }

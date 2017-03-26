@@ -21,8 +21,8 @@ $app->get('/api/hello-world', function() use ($app) {
 
 $app->get('/api/routes', 'RoutesController@index');
 $app->get('/api/routes/{id}', 'RoutesController@show');
+$app->get('/api/routes/{id}/attractions', 'RoutesController@attractions');
 
 $app->get('/api/attractions', 'AttractionsController@index');
 $app->get('/api/attractions/{id}', 'AttractionsController@show');
-$app->get('/api/types', 'AttractionsController@types');
-$app->get('/api/types/{type}', 'AttractionsController@searchbytype');
+$app->get('/api/attractions/{id}/routes', 'AttractionsController@routes');
