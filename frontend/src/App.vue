@@ -1,32 +1,54 @@
 <template>
   <div id="app">
-    <button @click="getAllRoutes">click</button>
+    <pc-routes-list
+      :routes="routes"
+      @load-route="loadRoute"
+      ></pc-routes-list>
+    <pc-map
+      :markers="markers"></pc-map>
   </div>
 </template>
 
 <script>
 
-//import {getAllRoutes} from './api/index'
+import Vue from 'vue'
+import pcRoutesList from './components/RoutesList'
+import pcMap from './components/Map'
 
 export default {
   name: 'app',
+
   data () {
     return {
-      routes: null
+      routes: [],
+      markers: [],
+      selectedRoute: null
     }
   },
   methods: {
-    getAllRoutes: function (argument) {
-      // GET /someUrl
-      this.$http.get('/api/routes/1').then(response => {
-        console.log(response.body);
-        // get body data
-        this.routes = response.body;
-
+    loadRoute (routeId){
+      if (routeId === this.selectedRoute ) {
+        return;
+      }
+      this.selectedRoute = routeId
+      Vue.http.get(`/api/routes/${routeId}/attractions`).then(response => {
+        this.markers = response.body
+        console.log(this.markers)
       }, response => {
-        console.log(response);
+        console.log("Something went wrong")
       });
     }
+  },
+  components: {
+    pcRoutesList,
+    pcMap
+  },
+  mounted() {
+    Vue.http.get('/api/routes').then(response => {
+      this.routes = response.body
+    }, response => {
+      console.log("Something went wrong")
+    });
   }
 }
 </script>
@@ -38,7 +60,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 
 h1, h2 {
